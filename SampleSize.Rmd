@@ -1,0 +1,79 @@
+---
+title: "CFDA guidance sample size formulae issue"
+author: "Ning Li"
+date: "`r Sys.Date()`"
+output:
+  rticles::acm_article: default
+  prettydoc::html_pretty:
+    highlight: github
+    theme: architect
+---
+
+
+## 1. China CFDA Guidance: Medical Magnetic Resonance Imaging System Registration Technical Review Guidance
+
+This guidance provides samle size calculation formulae for single group target value method in part 4.1.
+
+### 4.1 Sample size required for single group target value method 
+
+According to the clinical requirements, the image quality index for clinical diagnosis must not be less than 75% (target value) (considering that MR images are largely affected by patient¡¯s cooperation, therefore the target value is set at 75%). Assuming that the image quality index is 90%, then if the significance level (two tails) is 0.05, test effectiveness is 80%, considering 10% failure rate, according to principles of statistics, the calculated sample size for each anatomy is a minimum of 60 test human subjects. Corresponding sample size formula: 
+
+
+\[n=\frac{(  u_{1-\alpha} \sqrt{p_0 (1- p_0)} 
+           + u_{1-\beta}  \sqrt{p_T (1- p_T)} )^2}{(p_T-p_0)^2}\]
+           
+Where: PT is the Expected efficacy value of the corresponding test group P0 is the corresponding target efficacy value ¦Ì is the quantile of the standard normal distribution  ¦Á is the Type I error, set to 0.025 ¦Â is the Type II error, set to 0.2 Each manufacturer may calculate the sample size based on submitted product image quality index, but it must comply with the above minimum sample size requirements 
+
+with a one-tailed test, the alternative hypothesis is directional, whereas with a two-tailed test it is nondirectional. Here, we want to test if the image quality index for clinical diagnosis not less than 75% (target value), so the alternative hypothesis is directional and the one-tailed test is adopted. However, the guidance then mentions that "then if the significance level (two tails) is 0.05", which is a mistake because we should use one-tail significance 0.05 here. Then, in the sample size calculation formulae, the guidance set the ¦Á to 0.025, which is also a mistake because guidance cut the 0.05 half to 0.025. The correct method is listed as below: ¦Á shoul be set 0.05 both in the one-tailed test and two-tailed test. The difference is in the calculation of sample size. in one-tailed test, use
+
+\[n=\frac{(  u_{1-\alpha} \sqrt{p_0 (1- p_0)} 
+           + u_{1-\beta}  \sqrt{p_T (1- p_T)} )^2}{(p_T-p_0)^2}\]. 
+           
+In two-tailed test, use 
+
+\[n=\frac{(  u_{1-\alpha/2} \sqrt{p_0 (1- p_0)} 
+           + u_{1-\beta}  \sqrt{p_T (1- p_T)} )^2}{(p_T-p_0)^2}\].
+
+
+
+## 2.1 One-Tailed test:
+
+
+\[n=\frac{(  u_{1-\alpha} \sqrt{p_0 (1- p_0)} 
+           + u_{1-\beta}  \sqrt{p_T (1- p_T)} )^2}{(p_T-p_0)^2}\]
+
+Below is the function used to determine the sample size
+
+```{r}
+samplesize <- function(a, b, p0, pt){
+                
+n <- ( qnorm(1-a)*sqrt(p0*(1-p0)) + qnorm(1-b)*sqrt(pt*(1-pt)) )**2 / (pt-p0)**2
+print (n)
+}
+
+samplesize(0.05, 0.2, 0.75, 0.90)
+```
+
+
+## 2.2 Two-Tailed test:
+
+
+\[n=\frac{(  u_{1-\alpha/2} \sqrt{p_0 (1- p_0)} 
+           + u_{1-\beta}  \sqrt{p_T (1- p_T)} )^2}{(p_T-p_0)^2}\]
+           
+
+```{r}
+
+samplesize <- function(a, b, p0, pt){
+                
+n <- ( qnorm(1-0.05/2)*sqrt(p0*(1-p0)) + qnorm(1-b)*sqrt(pt*(1-pt)) )**2 / (pt-p0)**2
+print (n)
+}
+
+samplesize(0.05, 0.2, 0.75, 0.90)
+```
+
+Reference website 1: https://www.itl.nist.gov/div898/handbook/prc/section2/prc242.htm
+
+Reference website 2: https://www.stat.ubc.ca/~rollin/stats/ssize/b1.html
+
